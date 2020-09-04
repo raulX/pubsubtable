@@ -1,10 +1,10 @@
 import React from "react";
 import PropTypes from "prop-types";
-
-import Styled from "./Pagination.styled";
 import { IconButton } from "@material-ui/core";
 import ArrowBackIosIcon from "@material-ui/icons/ArrowBackIos";
 import ArrowForwardIosIcon from "@material-ui/icons/ArrowForwardIos";
+
+import Styled from "./Pagination.styled";
 
 const getPaginationInfo = (page, rowsPerPage, count) => {
 	const initialElement = page * rowsPerPage;
@@ -47,9 +47,13 @@ const Pagination = ({
 };
 
 Pagination.propTypes = {
-};
-
-Pagination.defaultProps = {
+	className: PropTypes.string,
+	rowsPerPage: PropTypes.number.isRequired,
+	rowsPerPageOptions: PropTypes.arrayOf(PropTypes.number.isRequired).isRequired,
+	onChangeRowsPerPage: PropTypes.func.isRequired,
+	page: PropTypes.number.isRequired,
+	count: PropTypes.number.isRequired,
+	onChangePage: PropTypes.func.isRequired,
 };
 
 export default Pagination;

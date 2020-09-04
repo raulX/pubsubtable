@@ -1,36 +1,18 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import styled, { css } from "styled-components";
+import { IconButton } from "@material-ui/core";
+import SearchIcon from "@material-ui/icons/Search";
+import ClearIcon from "@material-ui/icons/Clear";
 
 import useTable from "core/hooks/table-hook";
+import { anyFieldMatchFilter } from "core/utils/filters";
+
 import Pagination from "./components/pagination/Pagination";
 
-const TableContainer = styled.table`
-	${(props) => css`
-		min-width: 500px;
-		& thead th {
-			font-weight: "600";
-			color: ${props.theme.palette.grey[50]};
-			background-color: ${props.theme.palette.primary[900]};
-            padding: ${`${props.theme.spacing(3)}px`};
-            text-align: initial;
-		}
-		& tbody td {
-			font-weight: "300";
-			display: table-cell;
-			padding: ${`${props.theme.spacing(3)}px`};
-			text-align: left;
-			border-bottom: 1px solid rgba(81, 81, 81, 1);
-			vertical-align: inherit;
-		}
-		& tbody tr:hover {
-			background-color: ${props.theme.palette.action.hover};
-			cursor: "pointer";
-		}
-	`}
-`;
+import Styled from "./Table.styled";
+import { getObjectValue } from "core/utils/object";
 
-const Table = ({ columns, data, filterFn, actions }) => {
+const Table = ({ columns, data }) => {
 	const {
 		filteredData,
 		pageData,
@@ -39,46 +21,51 @@ const Table = ({ columns, data, filterFn, actions }) => {
 		rowsPerPageOptions,
 		page,
 		setPage,
+		order,
+		setOrder,
+		setFilterFn,
 	} = useTable({
 		data,
 	});
-	const renderTableHead = () => {
-		/* 
-		const sortRequestHandler = (columnId) => {
-			const isAsc = order.columnId === columnId && order === "asc";
-			setOrder({
-				columnId,
-				isAsc: isAsc ? "desc" : "asc",
-			});
-        };
-         */
-		return (
-			<thead>
-				<tr>
-					{columns.map((column) => (
-						<th
-							key={column.id}
-							//onClick={() => sortRequestHandler(column.id)}
-							//sortDirection={orderBy === column.id ? order : false}
-						>
-							{column.header}
 
-							{/* 
-							{column.disableSorting ? (
-								column.label
-							) : (
-								<TableSortLabel
-									active={orderBy === column.id}
-									direction={orderBy === column.id ? order : "asc"}
-								>
-									{column.label}
-								</TableSortLabel>
-							)}
-                             */}
-						</th>
-					))}
-				</tr>
-			</thead>
+	const [searchText, setSearchText] = useState("");
+
+	const changeSearchTextHandler = (event) => {
+		setSearchText(event.target.value);
+	};
+
+	const searchSubmitHanlder = (event) => {
+		if (event) {
+			event.preventDefault();
+		}
+		setFilterFn(() => (data) => {
+			return searchText === ""
+				? data
+				: data.filter((item) => anyFieldMatchFilter(searchText, item));
+		});
+	};
+
+	const clearFilter = () => {
+		setSearchText("");
+		setFilterFn(null);
+	};
+
+	const renderTableHeadCell = (column) => {
+		const sortRequestHandler = () => {
+			const isAsc = !(order.columnId === column.id && order.isAsc);
+			setOrder({
+				columnId: column.id,
+				isAsc,
+			});
+		};
+		return (
+			<Styled.THeadCell
+				key={column.id}
+				onClick={column.disableSort ? null : sortRequestHandler}
+			>
+				{column.header}
+				{order.columnId === column.id && ` ${order.isAsc ? "↓" : "↑"}`}
+			</Styled.THeadCell>
 		);
 	};
 
@@ -86,19 +73,41 @@ const Table = ({ columns, data, filterFn, actions }) => {
 		return (
 			<tr key={`crud table body row ${rowIndex}`}>
 				{columns.map((column, columnIndex) => (
-					<td key={`crud table body row ${columnIndex} cell ${rowIndex}`}>
-						{row[column.id]}
-					</td>
+					<Styled.TBodyCell key={`crud table body row ${columnIndex} cell ${rowIndex}`}>
+						{column.Cell ? column.Cell(row) : getObjectValue(row, column.id)}
+					</Styled.TBodyCell>
 				))}
 			</tr>
 		);
 	};
+
 	return (
-		<>
-			<TableContainer>
-				{renderTableHead()}
+		<Styled.Container>
+			<form onSubmit={searchSubmitHanlder}>
+				<Styled.SearchInput
+					value={searchText}
+					onChange={changeSearchTextHandler}
+					label="Buscar..."
+					InputProps={{
+						endAdornment: (
+							<>
+								<IconButton onClick={clearFilter}>
+									<ClearIcon></ClearIcon>
+								</IconButton>
+								<IconButton onClick={searchSubmitHanlder}>
+									<SearchIcon />
+								</IconButton>
+							</>
+						),
+					}}
+				/>
+			</form>
+			<Styled.TableContainer>
+				<thead>
+					<tr>{columns.map(renderTableHeadCell)}</tr>
+				</thead>
 				<tbody>{pageData.map(renderTableRow)}</tbody>
-			</TableContainer>
+			</Styled.TableContainer>
 			<Pagination
 				rowsPerPage={rowsPerPage}
 				rowsPerPageOptions={rowsPerPageOptions}
@@ -107,10 +116,20 @@ const Table = ({ columns, data, filterFn, actions }) => {
 				count={filteredData.length}
 				onChangePage={setPage}
 			/>
-		</>
+		</Styled.Container>
 	);
 };
 
-Table.propTypes = {};
+Table.propTypes = {
+	columns: PropTypes.arrayOf(
+		PropTypes.shape({
+			id: PropTypes.string.isRequired,
+			header: PropTypes.string.isRequired,
+			cell: PropTypes.node,
+			disableSort: PropTypes.bool,
+		}).isRequired
+	).isRequired,
+	data: PropTypes.arrayOf(PropTypes.shape({}).isRequired).isRequired,
+};
 
 export default Table;
