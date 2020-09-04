@@ -16,7 +16,6 @@ const appliedTheme = createMuiTheme({
 });
 
 const ThemeProvider = ({ children }) => {
-    console.log(appliedTheme);
 	return (
 		<StyledComponentsThemeProvider theme={appliedTheme}>
 			{children}
