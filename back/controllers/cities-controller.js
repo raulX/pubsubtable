@@ -3,36 +3,50 @@ const HttpError = require("../models/http-error");
 
 /* 
 	Automatic cities data update simulation.
-	Simulates an update every t between 1 and 6 seconds
+	Simulates an update every t between 1 and 10 seconds
  */
-let citiesData = [...citiesListMock];
+let citiesData = {
+	lastUpdate: new Date(),
+	citiesList: [...citiesListMock],
+};
 
 const updateCities = () => {
-	const msToNextUpdate = Math.floor(Math.random() * 5000 + 1000);
-	console.log("UPDATE", msToNextUpdate);
-	citiesData = citiesData
-		.map((city) => ({
-			...city,
-			pollution: +(Math.random() * 100).toFixed(2),
-		}))
-		.sort((a, b) => (a.pollution < b.pollution ? 1 : -1));
-
+	const msToNextUpdate = Math.floor(Math.random() * 9000 + 1000);
+	citiesData = {
+		lastUpdate: new Date(),
+		citiesList: citiesData.citiesList
+			.map((city) => ({
+				...city,
+				pollution: +(Math.random() * 100).toFixed(2),
+			}))
+			.sort((a, b) => (a.pollution < b.pollution ? 1 : -1)),
+	};
 	setTimeout(updateCities, msToNextUpdate);
 };
 
 updateCities();
 
-
 const getCities = async (req, res, next) => {
 	const { count } = req.query;
 
-	let cities = citiesData;
+	let citiesData = citiesData;
 	if (count) {
-		cities = cities.slice(0, count);
+		citiesData = {
+			...citiesData,
+			citiesList: citiesData.slice(0, count),
+		};
 	}
 
 	res.json({
-		cities,
+		citiesData,
+	});
+};
+
+const getCitiesLastUpdate = async (req, res, next) => {
+	const { count } = req.query;
+
+	res.json({
+		lastUpdate: citiesData.lastUpdate,
 	});
 };
 
@@ -47,4 +61,5 @@ const getCityById = async (req, res, next) => {
 };
 
 exports.getCities = getCities;
+exports.getCitiesLastUpdate = getCitiesLastUpdate;
 exports.getCityById = getCityById;
