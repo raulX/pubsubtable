@@ -1,5 +1,4 @@
-const citiesListMock = [...new Array(1000)].map((_, index) => ({
-	id: index,
+export const citiyListMock = [...new Array(140)].map((_, index) => ({
 	country: `pais ${index}`,
 	city: {
 		id: index,
@@ -7,5 +6,3 @@ const citiesListMock = [...new Array(1000)].map((_, index) => ({
 	},
 	pollution: +(Math.random() * 100).toFixed(2),
 }));
-
-exports.citiesListMock = citiesListMock;

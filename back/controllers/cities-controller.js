@@ -26,25 +26,23 @@ const updateCities = () => {
 
 updateCities();
 
+/* 
+	Controller
+*/
+
 const getCities = async (req, res, next) => {
 	const { count } = req.query;
-
-	let citiesData = citiesData;
+	let citiesList = citiesData.citiesList;
 	if (count) {
-		citiesData = {
-			...citiesData,
-			citiesList: citiesData.slice(0, count),
-		};
+		citiesList = citiesData.citiesList.slice(0, count);
 	}
 
 	res.json({
-		citiesData,
+		citiesList,
 	});
 };
 
 const getCitiesLastUpdate = async (req, res, next) => {
-	const { count } = req.query;
-
 	res.json({
 		lastUpdate: citiesData.lastUpdate,
 	});

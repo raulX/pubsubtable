@@ -18,8 +18,6 @@ const useTable = ({ data }) => {
 	const [pageData, setPageData] = useState([]);
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(rowsPerPageOptions[0]);
-	// eslint-disable-next-line no-unused-vars
-	const [pageCount, setPageCount] = useState(0);
 	const [order, setOrder] = useState({
 		columnId: "",
 		isAsc: true,
@@ -32,6 +30,10 @@ const useTable = ({ data }) => {
 			updatedData = filterFn(updatedData);
 		}
 		const sortedData = sortTableData(updatedData, order);
+		console.log({ data: sortedData.length, page, rowsPerPage });
+		if (sortedData.length < page * rowsPerPage) {
+			setPage(0);
+		}
 		setFilteredData(sortedData);
 		updatePageData(sortedData);
 	};
