@@ -3,6 +3,7 @@ const bodyParser = require("body-parser");
 const citiesRoutes = require("./routes/cities-routes");
 
 const HttpError = require("./models/http-error");
+const socket = require("./socket");
 
 const app = express();
 
@@ -17,7 +18,6 @@ app.use((req, res, next) => {
 	res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
 	next();
 });
- 
 
 app.use("/api/cities", citiesRoutes);
 
@@ -25,7 +25,6 @@ app.use((req, res, next) => {
 	const error = new HttpError("Could not find this route.", 400);
 	throw error;
 });
-
 
 app.use((error, req, res, next) => {
 	if (res.headerSent) {
@@ -35,4 +34,9 @@ app.use((error, req, res, next) => {
 	res.json({ message: error.message || "Unknown error" });
 });
 
-app.listen(5000);
+const server = app.listen(5000);
+
+const io = require("./socket").init(server);
+io.on(`connection`, socket=>{
+	console.log('Client connected')
+})

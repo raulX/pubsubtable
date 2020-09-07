@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "react-query";
+import openSocket from "socket.io-client";
 
 import Paper from "core/components/UIcomponents/Paper";
-import Table from "core/components/table/Table"
-import { CITIES_ROUTES } from "../router/routes";;
+import Table from "core/components/table/Table";
+import { CITIES_ROUTES } from "../router/routes";
+import { CircularProgress } from "@material-ui/core";
 
 const columns = [
 	{
@@ -33,6 +35,9 @@ const columns = [
 ];
 
 const CityList = () => {
+	const [data, setData] = useState();
+	//Polling method
+	/* 
 	const { data } = useQuery(
 		"citiesList",
 		() =>
@@ -40,11 +45,31 @@ const CityList = () => {
 				res.json()
 			),
 		{
-			refetchInterval: 3000,
+			//refetchInterval: 3000,
 		}
 	);
+	 */
+	 
+	 //PubSub method
+
+	const initialize = () => {
+		const socket = openSocket("http://localhost:5000");
+		socket.on("citiyList", (backendData) => {
+			setData({
+				cityList: backendData.cityList,
+			});
+		});
+	};
+	useEffect(initialize, []);
+
 	return (
-		<Paper>{data && <Table columns={columns} data={data.citiesList} />}</Paper>
+		<Paper>
+			{!data ? (
+				<CircularProgress />
+			) : (
+				<Table columns={columns} data={data.cityList} />
+			)}
+		</Paper>
 	);
 };
 

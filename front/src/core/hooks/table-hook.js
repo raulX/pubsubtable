@@ -30,7 +30,6 @@ const useTable = ({ data }) => {
 			updatedData = filterFn(updatedData);
 		}
 		const sortedData = sortTableData(updatedData, order);
-		console.log({ data: sortedData.length, page, rowsPerPage });
 		if (sortedData.length < page * rowsPerPage) {
 			setPage(0);
 		}
