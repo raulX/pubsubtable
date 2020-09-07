@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "react-query";
-import openSocket from "socket.io-client";
 
 import Paper from "core/components/UIcomponents/Paper";
 import Table from "core/components/table/Table";
 import { CITIES_ROUTES } from "../router/routes";
 import { CircularProgress } from "@material-ui/core";
+import { cityListSocket } from "app/api/socketApi";
+import useSocket from "core/hooks/socket-hook";
+import { ENDPOINTS } from "app/api";
 
 const columns = [
 	{
@@ -35,39 +37,30 @@ const columns = [
 ];
 
 const CityList = () => {
-	const [data, setData] = useState();
-	//Polling method
-	/* 
 	const { data } = useQuery(
 		"citiesList",
 		() =>
-			fetch("http://localhost:5000/api/cities?count=100").then((res) =>
+			fetch(ENDPOINTS.CITIES.LIST(100)).then((res) =>
 				res.json()
 			),
 		{
+			//Polling method
 			//refetchInterval: 3000,
 		}
 	);
-	 */
-	 
-	 //PubSub method
 
-	const initialize = () => {
-		const socket = openSocket("http://localhost:5000");
-		socket.on("citiyList", (backendData) => {
-			setData({
-				cityList: backendData.cityList,
-			});
-		});
-	};
-	useEffect(initialize, []);
+	//PubSub method
+	const socketData = useSocket(cityListSocket);
 
 	return (
 		<Paper>
-			{!data ? (
+			{!data && !socketData ? (
 				<CircularProgress />
 			) : (
-				<Table columns={columns} data={data.cityList} />
+				<Table
+					columns={columns}
+					data={socketData?.cityList || data?.cityList }
+				/>
 			)}
 		</Paper>
 	);

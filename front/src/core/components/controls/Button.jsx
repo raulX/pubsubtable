@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 
 const Button = (props) => {
 	const { text, size, color, variant, onClick, type, to, ...other } = props;
-
 	if (to) {
 		return (
 			<MuiButton
