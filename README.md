@@ -2,6 +2,12 @@
 
 This project shows a list of 100 cities that updates every few seconds from a bigger size pool.
 
+This project uses:
+  - React with react-hooks, react-query, react-router-dom.
+  - styled-components and material-ui
+  - socket.io
+  - google maps with react-google-maps
+
 ## How to start the project
 The project comes with a front and a back folder for each part of the application.
 
