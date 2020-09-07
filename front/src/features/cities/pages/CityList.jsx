@@ -30,7 +30,7 @@ const columns = [
 		disableSort: true,
 		Cell: (row) => {
 			return (
-				<Link to={CITIES_ROUTES.CITY_DETAIL(row.city.id)}>Ver detalle</Link>
+				<Link to={CITIES_ROUTES.CITY_DETAIL(row.city.id)}>Ver mapa</Link>
 			);
 		},
 	},
